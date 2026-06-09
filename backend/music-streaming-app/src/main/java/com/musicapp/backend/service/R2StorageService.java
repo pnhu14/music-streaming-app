@@ -2,8 +2,11 @@ package com.musicapp.backend.service;
 
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
@@ -28,14 +33,17 @@ public class R2StorageService {
   private final S3Presigner presigner;
   private final S3Client s3Client;
   private final String bucket;
+  private final String publicBaseUrl;
 
   public R2StorageService(
       @Value("${R2_ENDPOINT:}") String endpoint,
       @Value("${R2_ACCOUNT_ID:}") String accountId,
       @Value("${R2_ACCESS_KEY:}") String accessKey,
       @Value("${R2_SECRET_ACCESS_KEY:}") String secretAccessKey,
-      @Value("${R2_BUCKET:}") String bucket) {
+      @Value("${R2_BUCKET:}") String bucket,
+      @Value("${R2_PUBLIC_BASE_URL:}") String publicBaseUrl) {
     this.bucket = bucket;
+    this.publicBaseUrl = publicBaseUrl;
     String resolvedEndpoint = resolveEndpoint(endpoint, accountId);
 
     if (!StringUtils.hasText(resolvedEndpoint)
@@ -120,6 +128,67 @@ public class R2StorageService {
     }
   }
 
+  public List<R2ObjectSummary> listObjects(String prefix) {
+    if (s3Client == null) {
+      throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "R2 is not configured");
+    }
+
+    List<R2ObjectSummary> objects = new ArrayList<>();
+    String continuationToken = null;
+    try {
+      do {
+        ListObjectsV2Request.Builder request = ListObjectsV2Request.builder().bucket(bucket);
+        if (StringUtils.hasText(prefix)) {
+          request.prefix(prefix.trim());
+        }
+        if (StringUtils.hasText(continuationToken)) {
+          request.continuationToken(continuationToken);
+        }
+
+        ListObjectsV2Response response = s3Client.listObjectsV2(request.build());
+        response
+            .contents()
+            .forEach(
+                object ->
+                    objects.add(
+                        new R2ObjectSummary(
+                            object.key(), object.size(), object.lastModified(), object.eTag())));
+        continuationToken = response.nextContinuationToken();
+      } while (StringUtils.hasText(continuationToken));
+    } catch (S3Exception exception) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_GATEWAY,
+          "Could not list audio objects from R2: "
+              + exception.statusCode()
+              + " "
+              + exception.awsErrorDetails().errorCode(),
+          exception);
+    } catch (SdkException exception) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_GATEWAY, "Could not list audio objects from R2", exception);
+    }
+
+    return objects;
+  }
+
+  public String getBucketName() {
+    if (!StringUtils.hasText(bucket)) {
+      throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "R2 is not configured");
+    }
+
+    return bucket.trim();
+  }
+
+  public String createPublicUrl(String objectKey) {
+    String normalizedObjectKey = normalizeObjectKey(objectKey);
+    if (!StringUtils.hasText(publicBaseUrl)) {
+      return "r2://" + getBucketName() + "/" + normalizedObjectKey;
+    }
+
+    String baseUrl = publicBaseUrl.trim().replaceAll("/+$", "");
+    return baseUrl + "/" + encodeObjectKeyPath(normalizedObjectKey);
+  }
+
   private String resolveEndpoint(String endpoint, String accountId) {
     if (StringUtils.hasText(endpoint)) {
       return endpoint.trim();
@@ -149,6 +218,17 @@ public class R2StorageService {
     int objectPathIndex = trimmed.indexOf("/objects/");
     String key =
         objectPathIndex >= 0 ? trimmed.substring(objectPathIndex + "/objects/".length()) : trimmed;
+    if (isHttpUrl(key)) {
+      key = URI.create(key).getRawPath().replaceAll("^/+", "");
+    }
     return URLDecoder.decode(key, StandardCharsets.UTF_8);
+  }
+
+  private String encodeObjectKeyPath(String objectKey) {
+    return String.join(
+        "/",
+        List.of(objectKey.split("/", -1)).stream()
+            .map(segment -> URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20"))
+            .toList());
   }
 }
