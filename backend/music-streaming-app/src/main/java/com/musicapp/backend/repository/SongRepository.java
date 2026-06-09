@@ -27,13 +27,21 @@ public interface SongRepository extends JpaRepository<Song, UUID> {
   @EntityGraph(attributePaths = "album.primaryArtist")
   Optional<Song> findById(UUID id);
 
-  @EntityGraph(attributePaths = "album.primaryArtist")
+  @EntityGraph(attributePaths = {"album.primaryArtist", "audioAsset"})
   Optional<Song> findByIdAndDeletedAtIsNull(UUID id);
 
-  @EntityGraph(attributePaths = "album.primaryArtist")
+  @EntityGraph(attributePaths = {"album.primaryArtist", "audioAsset"})
   Optional<Song> findBySlugAndDeletedAtIsNull(String slug);
+
+  Optional<Song> findByAudioUrlAndDeletedAtIsNull(String audioUrl);
+
+  Optional<Song> findByAudioAsset_IdAndDeletedAtIsNull(UUID audioAssetId);
 
   boolean existsBySlugAndDeletedAtIsNull(String slug);
 
   boolean existsBySlugAndIdNotAndDeletedAtIsNull(String slug, UUID id);
+
+  boolean existsByAudioUrlAndDeletedAtIsNull(String audioUrl);
+
+  boolean existsByAudioAsset_IdAndDeletedAtIsNull(UUID audioAssetId);
 }

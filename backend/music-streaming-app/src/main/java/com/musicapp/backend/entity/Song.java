@@ -42,11 +42,19 @@ public class Song {
   @Column(name = "release_date")
   private LocalDate releaseDate;
 
-  @Column(name = "audio_url", nullable = false, length = 512)
+  @Column(name = "audio_url", nullable = false, length = 1024)
   private String audioUrl;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "audio_asset_id")
+  private MediaAsset audioAsset;
 
   @Column(name = "cover_url", length = 512)
   private String coverUrl;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "cover_asset_id")
+  private MediaAsset coverAsset;
 
   @Column(name = "lyrics")
   private String lyrics;
