@@ -1,84 +1,263 @@
-# 🎵 Music Streaming App
+# Music Streaming App
 
-Ứng dụng nghe nhạc được thiết kế để bạn có thể **duyệt bài hát, tìm kiếm nhanh, xem thông tin nghệ sĩ và tạo playlist** theo một cách đơn giản, trực quan. 
+![Java](https://img.shields.io/badge/Java-17-007396?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-6DB33F?logo=springboot&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-wrapper-C71A36?logo=apachemaven&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-required-4169E1?logo=postgresql&logoColor=white)
+![Flyway](https://img.shields.io/badge/Flyway-migrations-CC0200?logo=flyway&logoColor=white)
+![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=111111)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4.3-06B6D4?logo=tailwindcss&logoColor=white)
+![Bun](https://img.shields.io/badge/Bun-package%20scripts-000000?logo=bun&logoColor=white)
+![Cloudflare R2](https://img.shields.io/badge/Cloudflare%20R2-audio%20storage-F38020?logo=cloudflare&logoColor=white)
 
-Dự án hiện phù hợp cho nhu cầu sử dụng của người thân, bạn bè, đồng thời đã được xây dựng với tư duy mở rộng để sau này có thể phát triển thành một nền tảng phục vụ nhiều người dùng hơn.
+A full-stack music streaming application with a Spring Boot backend, PostgreSQL/Flyway database, and React + TypeScript frontend. The app focuses on browsing a music catalog, searching songs/artists, authentication, liked songs, audio playback, and optional Cloudflare R2-backed audio import/storage.
 
-## ✨ Ứng dụng này có gì?
+## Tech Stack
 
-### 🎧 Dành cho người nghe nhạc
-- Xem danh sách bài hát theo dạng thẻ đẹp mắt
-- Tìm kiếm bài hát theo tên
-- Xem ảnh bài hát, ngày phát hành và nghệ sĩ liên quan
-- Bấm phát nhạc theo luồng UI hiện tại
+Backend:
+- Java 17
+- Spring Boot 3.5.6
+- Spring Web, Spring Security, OAuth2 Client, Validation, Actuator
+- Spring Data JPA + Hibernate
+- PostgreSQL
+- Flyway migrations
+- Lombok
+- JJWT
+- AWS SDK S3 for Cloudflare R2
+- Maven Wrapper
 
-### 🔎 Dành cho khám phá âm nhạc
-- Gắn bài hát với nghệ sĩ
-- Hỗ trợ playlist để sắp xếp nhạc theo chủ đề
-- Sẵn sàng cho các tính năng như yêu thích, theo dõi nghệ sĩ, lịch sử nghe và thể loại nhạc
+Frontend:
+- React 19
+- TypeScript 6
+- Vite 8
+- Tailwind CSS 4 via `@tailwindcss/vite`
+- Framer Motion
+- Heroicons
+- Bun for package scripts
 
-### 🚀 Dành cho mở rộng về sau
-- Thiết kế dữ liệu theo hướng production
-- Có nền tảng để mở rộng sang album, genre, roles, audit log, refresh token
-- Backend theo kiến trúc nhiều lớp để dễ bảo trì và phát triển thêm tính năng
-
-## 💡 Tính năng chính
-
-- Duyệt catalog bài hát
-- Tìm kiếm bài hát
-- Hiển thị thông tin nghệ sĩ
-- Quản lý playlist
-- Thiết kế sẵn cho tương tác người dùng như like, follow, lịch sử nghe
-- Quản lý database bằng Flyway
-- Giao diện frontend responsive, hiện đại
-
-## 🧩 Các khu vực chức năng chính
-
-### 📚 Catalog âm nhạc
-Backend quản lý kho nhạc với bài hát và nghệ sĩ, đồng thời đã sẵn sàng cho album và thể loại nhạc trong tương lai.
-
-### 📝 Playlist
-Người dùng có thể tạo và sắp xếp playlist theo thứ tự mong muốn. Schema hiện tại đã hỗ trợ lưu vị trí bài hát trong playlist.
-
-### ❤️ Tương tác người dùng
-Thiết kế dữ liệu đã chuẩn bị cho các tính năng như:
-- yêu thích bài hát
-- theo dõi nghệ sĩ
-- lịch sử nghe nhạc
-- token đăng nhập
-
-### 🛡️ Quản trị và ghi log
-Hệ thống cũng có sẵn nền tảng cho:
-- phân quyền
-- audit log
-- theo dõi thao tác hệ thống
-
-## 📁 Cấu trúc dự án
+## Repository Structure
 
 ```text
-backend/music/                 Spring Boot backend
-frontend/music/music-streaming-app/  React frontend
+.
+├── backend/
+│   └── music-streaming-app/      Spring Boot backend
+├── frontend/
+│   └── music-streaming-app/      React + TypeScript frontend
+├── AGENTS.md                     Contributor and coding-agent guidelines
+├── LICENSE
+└── README.md
 ```
 
-## 🎼 Trải nghiệm hiện tại
+Important backend paths:
 
-Frontend đang sử dụng các API bài hát từ backend:
+```text
+backend/music-streaming-app/src/main/java/com/musicapp/backend
+backend/music-streaming-app/src/main/resources/db/migration
+backend/music-streaming-app/src/main/resources/db/undo
+backend/music-streaming-app/src/test/java
+```
 
-- `GET /api/songs`
-- `GET /api/songs?title=...`
+Important frontend paths:
 
-Hiện tại người dùng có thể:
-- mở ứng dụng
-- xem danh sách nhạc
-- tìm kiếm bài hát
-- xem thông tin nghệ sĩ đi kèm
+```text
+frontend/music-streaming-app/src/components
+frontend/music-streaming-app/src/views
+frontend/music-streaming-app/src/hooks
+frontend/music-streaming-app/src/services
+frontend/music-streaming-app/src/types
+frontend/music-streaming-app/src/utils
+```
 
-## 📝 Ghi chú
+## Prerequisites
 
-- Ứng dụng hiện tập trung vào trải nghiệm duyệt và tìm nhạc.
-- Database đã được thiết kế theo hướng mở rộng cho một nền tảng âm nhạc cộng đồng lớn hơn.
-- Giao diện frontend được xây dựng tối giản nhưng hiện đại để dễ phát triển tiếp.
+Install these locally:
 
-## 📄 License
+- Java 17 or newer
+- PostgreSQL
+- Bun
+- Git
 
-Dự án này được phát hành theo giấy phép [MIT License](./LICENSE).
+The backend uses the Maven Wrapper, so a separate Maven installation is not required.
+
+## Backend Setup
+
+1. Create a PostgreSQL database:
+
+```sql
+CREATE DATABASE music_db;
+```
+
+2. Create a local environment file from the example:
+
+```powershell
+Copy-Item backend/music-streaming-app/.env.example backend/music-streaming-app/.env
+```
+
+3. Fill in the required database variables in `backend/music-streaming-app/.env`:
+
+```properties
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=music_db
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+4. Optional OAuth/R2 settings:
+
+```properties
+FRONTEND_URL=http://localhost:5173
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=music-streaming-audio
+R2_ENDPOINT=
+R2_PUBLIC_BASE_URL=
+```
+
+5. Run the backend:
+
+```powershell
+cd backend/music-streaming-app
+.\mvnw.cmd spring-boot:run
+```
+
+The backend starts on:
+
+```text
+http://localhost:8080
+```
+
+Flyway runs automatically on startup and applies migrations from:
+
+```text
+backend/music-streaming-app/src/main/resources/db/migration
+```
+
+## Frontend Setup
+
+1. Install dependencies:
+
+```powershell
+cd frontend/music-streaming-app
+bun install
+```
+
+2. Start the dev server:
+
+```powershell
+bun run dev
+```
+
+The frontend starts on:
+
+```text
+http://localhost:5173
+```
+
+The API base URL is currently hardcoded in:
+
+```text
+frontend/music-streaming-app/src/services/api.ts
+```
+
+Current value:
+
+```text
+http://localhost:8080/api
+```
+
+## Common Commands
+
+Backend:
+
+```powershell
+cd backend/music-streaming-app
+.\mvnw.cmd compile
+.\mvnw.cmd spotless:apply
+.\mvnw.cmd spotless:check
+.\mvnw.cmd test
+.\mvnw.cmd spring-boot:run
+```
+
+Frontend:
+
+```powershell
+cd frontend/music-streaming-app
+bun run lint
+bun run build
+bun run dev
+bun run preview
+```
+
+## Main API Areas
+
+Public catalog:
+- `GET /api/discover`
+- `GET /api/discover?title=...`
+- `GET /api/songs/{id}`
+- `GET /api/songs/{id}/stream`
+- `GET /api/songs/{id}/stream-url`
+- `GET /api/artists`
+- `GET /api/artists/{id}`
+- `GET /api/albums/{id}`
+
+Authentication:
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/refresh`
+- `POST /api/auth/logout`
+- `GET /oauth2/authorization/google`
+
+Authenticated user:
+- `GET /api/me`
+- `GET /api/me/liked-songs`
+- `POST /api/me/liked-songs/{songId}`
+- `DELETE /api/me/liked-songs/{songId}`
+
+Admin:
+- `POST /api/admin/songs/import-r2`
+
+## Cloudflare R2 Notes
+
+R2 is optional for local catalog browsing, but required for R2-backed audio import and streaming.
+
+Set these variables in `backend/music-streaming-app/.env` when using R2:
+
+```properties
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=
+R2_ENDPOINT=
+R2_PUBLIC_BASE_URL=
+```
+
+`R2_PUBLIC_BASE_URL` is used to generate public audio URLs for imported objects and by the backfill migration for previously imported R2 songs.
+
+## Testing and Formatting
+
+Backend Java code must be formatted with Google Java Format through Spotless:
+
+```powershell
+cd backend/music-streaming-app
+.\mvnw.cmd spotless:apply
+.\mvnw.cmd test
+```
+
+Frontend changes should pass lint and build:
+
+```powershell
+cd frontend/music-streaming-app
+bun run lint
+bun run build
+```
+
+## License
+
+This project is released under the [MIT License](./LICENSE).

@@ -60,10 +60,16 @@ public class SecurityConfig {
                         "/api/auth/refresh")
                     .permitAll()
                     .requestMatchers(
-                        HttpMethod.GET, "/api/songs/**", "/api/artists/**", "/api/albums/**")
+                        HttpMethod.GET,
+                        "/api/discover/**",
+                        "/api/songs/**",
+                        "/api/artists/**",
+                        "/api/albums/**")
                     .permitAll()
                     .requestMatchers("/api/me/**", "/api/auth/logout")
                     .authenticated()
+                    .requestMatchers("/api/admin/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(
                         HttpMethod.POST, "/api/songs/**", "/api/artists/**", "/api/albums/**")
                     .hasRole("ADMIN")
